@@ -1,3 +1,3 @@
 # !/usr/bin/bash 
 
-echo "TEST"
+echo "BYE BYE WORLD"
