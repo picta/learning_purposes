@@ -116,7 +116,7 @@
 	  That's because your used is not configured to run docker, to configure it:
 		1. Add docker group(if doesn't exist) and add your user there:
 			$ sudo groupadd docker && sudo usermod -aG docker <user>
-		2. Log out and log in from the server
+		2. Log out and log in to the server
 		3. Verify: 
 			$ docker images
 			
