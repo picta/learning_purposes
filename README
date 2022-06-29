@@ -57,3 +57,98 @@
 		* In case you want to undo last commit: $ git reset --soft HEAD~1
 	5. Create your own repo and play with it
 
+3. GCC practice
+	1. Log into the practice VM
+	2. Install GCC
+		$ sudo dnf install gcc
+	3. Go to gcc folder
+		$ cd learning_purposes/gcc
+	4. Compile helloworld 
+		$  gcc helloworld.c -o helloworld
+	5. Run the code
+		$ ./helloworld
+	* Congratulations, you have just compiled and run C code!
+	6. Compile and run name.c
+
+3.1 MAKE practice
+	1. Log into the practice VM
+	2. Install dependencies
+		$ sudo dnf install wget g++
+	3. Download NMAP source code
+		$ wget nmap-7.92.tar.bz2
+	4. Uncompress wget
+		$ tar -xvf nmap-7.92.tar.bz2 && cd nmap-7.92
+	5. Verify that nmap is not installed on the system
+		$ nmap
+	6. Configure system-dependent variables and create Makefiles
+		$ ./configure
+	7. Compile
+		$ make
+	8. Install into the system binaries
+		$ sudo make install
+	* Congratulations, you have just compiled and run C++ application!
+	9. Test installation
+		$ nmap -sV -p 1-22 127.0.0.1
+		* -sV enables version detection
+		* Port 22 should be open on SSH service
+
+4. DOCKER practice
+	1. Create a Docker hub account: https://hub.docker.com/
+	2. Install dnf-core-utils in order to be able to manage DNF repositories
+		$ sudo dnf -y install dnf-plugins-core
+	3. Add Docker repo
+		$ sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+	4. Install docker engine and needed tools
+		$ sudo dnf install docker-ce docker-ce-cli containerd.io docker-compose docker-compose-plugin
+	5. Start docker daemon and enable start on boot
+		$ sudo systemctl start docker
+		$ sudo systemctl enable docker
+	6. Verify it is running
+		$ ps -aux|grep docker
+	7. Run hello-world container
+		$ docker run hello-world
+	9. List images
+		$ sudo docker images
+
+	* If getting permission denied while trying to connect to the Docker daemon socket at unix. 
+	  That's because your used is not configured to run docker, to configure it:
+		1. Add docker group(if doesn't exist) and add your user there:
+			$ sudo groupadd docker && sudo usermod -aG docker <user>
+		2. Log out and log in from the server
+		3. Verify: 
+			$ docker images
+			
+	10. Create a custom images:
+		1. Log into https://hub.docker.com/
+		2. Go to https://hub.docker.com/repositories
+		3. Click on "Create Repository"
+		4. Specify a name and description, set it to public, then click on "Create"
+		5. Enter docker_flask directory
+			$ cd learning_purposes/docker_flask
+		6. Log into docker Hub:
+			$ docker login
+			* Enter your user and password and see the success message
+		7. Run docker-whale to verify 
+			$ docker run picta/docker-whale
+		8. Build an image from Dockerfile
+			$ docker build . -t <user>/<DockerHubRepo>:<tag>
+			* Example: docker build . -t picta/learning:01
+		9. See the new image:
+			$ docker images
+		10. Run the image
+			$ docker run <user>/<DockerHubRepo>:<tag>
+			* Example: docker run picta/learning:01 
+		10. Push the image
+			$ sudo docker push <DockerHubUser>/<DockerHubRepo>:<tag>
+			* Example: docker push picta/learning:01
+		11. Remove the local image:
+			$ docker rmi <DockerHubUser>/<DockerHubRepo>:<tag>
+			* Example: docker rmi picta/learning:01
+		12. Pull the image from the Hub and run it:
+			$ docker pull <DockerHubUser>/<DockerHubRepo>:<tag>
+			* Example: docker pull picta/learning:01
+
+		* In case you want to empty the whole workspace:
+			1. docker system prune
+			2. docker rmi $(docker images -a -q)
+			* In case of errors, add force flag: docker rmi --force $(docker images -a -q)
