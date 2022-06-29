@@ -42,7 +42,9 @@
 	3. Setup identity using the same information as on your GitHub account:
 		$  git config --global user.email "you@example.com"
 		$  git config --global user.name "Your Name"
-	4. Push a commit to the repo:
+	4. Check your settings:
+		$ git config --list
+	5. Push a commit to the repo:
 		$ cd learning_purposes
 		$ touch name.lastname
 		$ git add name.lastname
@@ -55,7 +57,7 @@
 			*Authenticate using user and access token generated previously
 
 		* In case you want to undo last commit: $ git reset --soft HEAD~1
-	5. Create your own repo and play with it
+	6. Create your own repo and play with it
 
 3. GCC practice
 	1. Log into the practice VM
