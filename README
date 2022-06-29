@@ -110,7 +110,7 @@
 	7. Run hello-world container
 		$ docker run hello-world
 	9. List images
-		$ sudo docker images
+		$ docker images
 
 	* If getting permission denied while trying to connect to the Docker daemon socket at unix. 
 	  That's because your used is not configured to run docker, to configure it:
