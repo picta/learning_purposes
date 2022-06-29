@@ -125,8 +125,8 @@
 		2. Go to https://hub.docker.com/repositories
 		3. Click on "Create Repository"
 		4. Specify a name and description, set it to public, then click on "Create"
-		5. Enter docker_flask directory
-			$ cd learning_purposes/docker_flask
+		5. Enter docker directory
+			$ cd learning_purposes/docker
 		6. Log into docker Hub:
 			$ docker login
 			* Enter your user and password and see the success message
