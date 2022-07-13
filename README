@@ -175,18 +175,20 @@
 		$ sudo systemctl status jenkins
 	8. As firewalld must be running, open 8080 port
 		$ sudo firewall-cmd --add-port=8080/tcp
-	9. Copy the admin password from initialAdminPassword file
+	9. Make the change persistent at boots:
+		$ sudo firewall-cmd --runtime-to-permanent
+	10. Copy the admin password from initialAdminPassword file
 		$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-	9. Open Jenkins web app http://127.0.0.1:8080
+	11. Open Jenkins web app http://127.0.0.1:8080
 			* Using the port you forwarded to, in my case, I forwarded to the same port
-	11. Paste the initialAdminPassword and continue
-	12. Install suggested plugins
+	12. Paste the initialAdminPassword and continue
+	13. Install suggested plugins
 		* Wait for the installations
-	13. Create admin user
-	14. Click on Save and finish && Start using Jenkins
-	15. Go to Dashboard -> New Item
-	16. Assign a name, select "Freestyle project", and click on OK
-	17. Go to Source Code Management, select Git and specify:
+	14. Create admin user
+	15. Click on Save and finish && Start using Jenkins
+	16. Go to Dashboard -> New Item
+	17. Assign a name, select "Freestyle project", and click on OK
+	18. Go to Source Code Management, select Git and specify:
 		1. Repository URL: https://github.com/picta/learning_purposes
 		2. Credentials -> Add Jenkins credentials provider and specify:
 			1. Domain: Global
@@ -194,12 +196,121 @@
 			3. Scope: Global
 			4: Username and Password: Use your git user and token
 		3. Click on Add, and select the credentials from the drop down menu
-	18. Make sure master branch is selected as branch to build
+	19. Make sure master branch is selected as branch to build
 			* "*/master" should be the default value
-	19. Add a SHELL Build step with following value: ./zero.sh 
-	20. Click on Save
-	21. Click on Build Now
+	20. Add a SHELL Build step with following value: ./zero.sh 
+	21. Click on Save
+	22. Click on Build Now
 		* At this point, A new build job should automatically appear in the Build History
-	22. Click on the job number
-	23. Go to Console Output and watch the execution log
-	24. Verify it succeeded
+	23. Click on the job number
+	24. Go to Console Output and watch the execution log
+	25. Verify it succeeded
+
+6. AWS CLI practice
+	part I
+	1. Install AWS CLI:
+		$ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+		$ unzip awscliv2.zip
+		$ sudo ./aws/install
+		$ aws --version
+	2. Configure AWS credentials:
+		$ aws configure
+		* Configurations goes to ~/.aws/
+	3. Generate an SSH key using the console or the CLI:
+		$ ssh-keygen -t rsa
+	4. Run an instance:
+		$ aws ec2 run-instances --image-id ami-02f3416038bdb17fb --count 1 --instance-type t2.micro --key-name mykey
+		$ aws ec2 describe-instances --filters "Name=instance-type,Values=t2.micro" --query "Reservations[].Instances[].InstanceId"
+	5. Add port 22 inbound rule to access the machine. 
+		$ ssh -i key.pem ubuntu@mymachine.com
+	part II
+	6. Create an EKS cluster from the web console
+	7. Intall needed tools
+		1. You'll need an IAM role for the cluster access: 
+			https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html
+		2. You can create a VPC using cloudformation, anyway eksctl creates one for us, so it's not really needed.
+			https://docs.aws.amazon.com/eks/latest/userguide/creating-a-vpc.html
+		3. Install kubectl
+			$ https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+		4. Install eksctl
+			https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+	8. Update kubectl configuration
+		$ aws eks update-kubeconfig --region region-code --name my-cluster
+		* Configuration goes to ~/.kube/
+	9. Verify installation:
+		$ kubectl get svc
+		$ kubectl version
+		$ kubectl config view
+		$ kubectl get namespace
+	10. Deploy an app:
+		$ kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
+		$ kubectl get deployments
+		$ kubectl get events --sort-by=.metadata.creationTimestamp
+		* You'll notice that the deployment fail, that's because there are no worker nodes, as a practice, you may want to set it up.
+	11. Create an EKS cluster with everything ready, using cloudformation
+		$ cd learning_purposes/k8s
+		$ eksctl create cluster -f cluster.yaml
+		* Installation takes about 30 minutes
+	10. Deploy an app, on the new cluster:
+		1.
+			$ kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
+			$ kubectl get deployments 
+			$ kubectl get pods
+			$ kubectl describe pods
+			$ kubectl proxy
+				* run in separate window
+			$ export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') 
+			$ echo Name of the Pod: $POD_NAME
+			$ curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/
+			$ kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+			$ kubectl get services
+			$ kubectl describe services/kubernetes-bootcamp
+			$ export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+			$ kubectl exec -ti $POD_NAME -- curl localhost:8080
+
+		2.
+			$ cd learning_purposes/k8s
+			$ kubectl apply -f load-balancer.yaml
+			$ kubectl get deployments hello-world
+			$ kubectl describe deployments hello-world
+			$ kubectl get replicasets
+			$ kubectl describe replicasets
+			$ kubectl expose deployment hello-world --type=LoadBalancer --name=my-service
+			$ kubectl get services my-service
+			$ kubectl describe services my-service
+			$ curl http://<external-ip>:<port>
+	11. Remove cluster
+		$ eksctl delete cluster -f cluster.yaml 
+	12. Navigate and get familiar with the AWS console and CLI, try out commands.
+
+7. IaC practice
+	1. Create a Free tier account on https://aws.amazon.com/
+	2. Go to the AWS console: https://aws.amazon.com/console/
+	3. Create an Access Key:
+		1. Click under your name on the top right of the screen and go to:
+			Security Credentials -> Access Keys -> Create New Access Key -> Show Access Key
+			* You'll use this information later to log from the CLI
+	4. Install terraform
+		$ sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+		$ sudo dnf install terraform -y
+		$ terraform --version
+	5. Create S3 bucket:
+		$ aws s3api create-bucket --bucket daniel-rodriguez-bucket --region us-east-2 --create-bucket-configuration LocationConstraint=us-east-2
+		$ aws s3 ls
+	7. Go to learning_purposes/learn_terraform
+		$ cd learning_purposes/learn_terraform
+	8. Modify backend.tf and main.tf according to your needs
+		* Don't forget to add your SSH public key
+	9. Initialize workspace
+		$ terraform init
+	10. Validate configuration
+		$ terrafom validate
+	11. Apply changes
+		$ terraform apply
+	12. Inspect state
+		$ terraform show
+		$ terraform state list
+	13. SSH to ec2_instance:
+		$ ssh -i ~/.ssh/id_rsa ubuntu@<Public IP>
+	14. Destroy the env:
+		$ terraform destroy	
