@@ -120,7 +120,7 @@
 		3. Verify: 
 			$ docker images
 			
-	10. Create a custom images:
+	10. Create a custom image:
 		1. Log into https://hub.docker.com/
 		2. Go to https://hub.docker.com/repositories
 		3. Click on "Create Repository"
@@ -154,3 +154,52 @@
 			1. docker system prune
 			2. docker rmi $(docker images -a -q)
 			* In case of errors, add force flag: docker rmi --force $(docker images -a -q)
+
+5. CI/CD practice
+	1. Jenkins runs on port 8080 by default.
+	   Use the same instructions as we did on VirtualBox practice, opening 8080 port instead
+	2. Add Jenkins repo and key
+		$ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+		$ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+	3. Install dependencies
+		$ sudo dnf install java-11-openjdk -y
+	4. Install Jenkins
+		$ sudo dnf install jenkins -y
+	5. Reload systemctl
+		$ sudo systemctl daemon-reload
+	6. Enable Jenkins service on every boot
+		$ sudo systemctl enable jenkins
+	7. Start Jenkins service and verify
+		$ sudo systemctl start jenkins
+			* First run it took a little long
+		$ sudo systemctl status jenkins
+	8. As firewalld must be running, open 8080 port
+		$ sudo firewall-cmd --add-port=8080/tcp
+	9. Copy the admin password from initialAdminPassword file
+		$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+	9. Open Jenkins web app http://127.0.0.1:8080
+			* Using the port you forwarded to, in my case, I forwarded to the same port
+	11. Paste the initialAdminPassword and continue
+	12. Install suggested plugins
+		* Wait for the installations
+	13. Create admin user
+	14. Click on Save and finish && Start using Jenkins
+	15. Go to Dashboard -> New Item
+	16. Assign a name, select "Freestyle project", and click on OK
+	17. Go to Source Code Management, select Git and specify:
+		1. Repository URL: https://github.com/picta/learning_purposes
+		2. Credentials -> Add Jenkins credentials provider and specify:
+			1. Domain: Global
+			2. Kind: Username with password
+			3. Scope: Global
+			4: Username and Password: Use your git user and token
+		3. Click on Add, and select the credentials from the drop down menu
+	18. Make sure master branch is selected as branch to build
+			* "*/master" should be the default value
+	19. Add a SHELL Build step with following value: ./zero.sh 
+	20. Click on Save
+	21. Click on Build Now
+		* At this point, A new build job should automatically appear in the Build History
+	22. Click on the job number
+	23. Go to Console Output and watch the execution log
+	24. Verify it succeeded
