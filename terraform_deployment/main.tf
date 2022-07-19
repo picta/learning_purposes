@@ -57,5 +57,5 @@ resource "aws_key_pair" "deployer" {
 }
 
 provisioner "remote-exec" {
-    command = ["cd ../ansible && ansible-playbook playbook.yml -i inventory --key-file "~/mykey.pem"]
+    command = ["cd ../ansible && ansible-playbook playbook.yml -i inventory --key-file "mykey.pem"]
 }
