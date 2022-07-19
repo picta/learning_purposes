@@ -5,8 +5,6 @@ terraform {
       version = "~> 4.22"
     }
   }
-
-  required_version = ">= 1.2.0"
 }
 
 provider "aws" {
@@ -49,6 +47,8 @@ resource "aws_security_group" "main" {
      security_groups  = []
      self             = false
      to_port          = 22
+     from_port	      = 80
+     to_port	      = 80
   }
   ]
 }
