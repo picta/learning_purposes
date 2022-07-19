@@ -46,9 +46,7 @@ resource "aws_security_group" "main" {
      protocol         = "tcp"
      security_groups  = []
      self             = false
-     to_port          = 22
-     from_port	      = 80
-     to_port	      = 80
+     to_port          = 80
   }
   ]
 }
