@@ -11,19 +11,20 @@ provider "aws" {
   region = "us-east-2"
 }
 
-resource "aws_instance" "app_server" {
+resource "aws_instance" "web_server" {
   ami           = "ami-02f3416038bdb17fb"
   instance_type = "t2.micro"
   key_name = "mykey"
   vpc_security_group_ids = [aws_security_group.main.id]
 
-  provisioner "local-exec" {
-      command = "cd ../ansible && ANSIBLE_LOCAL_TEMP=/tmp ANSIBLE_HOST_KEY_CHECKING=False && cat aws_instance.app_server.public_ip > inventory &&ansible-playbook playbook.yml -i inventory --key-file mykey.pem"
-  }
-  
   tags = {
     Name = "Test VM"
   }
+}
+
+output "instance_public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.web_server.public_ip
 }
 
 resource "aws_security_group" "main" {
