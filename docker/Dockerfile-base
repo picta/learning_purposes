@@ -1,7 +1,10 @@
 FROM centos:7
-RUN yum install -y yum-utils
+RUN yum install -y epel-release yum-utils
+RUN yum install -y ansible
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 RUN yum -y install terraform
 RUN terraform --version
+RUN ansible --version
+RUN ansible-playbook --help
 CMD echo "Hello world"
 ENTRYPOINT echo "Hello world"
