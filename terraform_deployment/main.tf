@@ -18,7 +18,7 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [aws_security_group.main.id]
 
   provisioner "local-exec" {
-      command = "cd ../ansible && ANSIBLE_LOCAL_TEMP=.ansible ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook playbook.yml -i inventory --key-file mykey.pem"
+      command = "cd ../ansible && ANSIBLE_LOCAL_TEMP=/tmp ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook playbook.yml -i inventory --key-file mykey.pem"
   }
   
   tags = {
