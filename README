@@ -247,6 +247,7 @@
 		$ kubectl get deployments
 		$ kubectl get events --sort-by=.metadata.creationTimestamp
 		* You'll notice that the deployment fail, that's because there are no worker nodes, as a practice, you may want to set it up.
+	part III
 	11. Create an EKS cluster with everything ready, using cloudformation
 		$ cd learning_purposes/k8s
 		$ eksctl create cluster -f cluster.yaml
@@ -280,7 +281,8 @@
 			$ kubectl describe services my-service
 			$ curl http://<external-ip>:<port>
 	11. Remove cluster
-		$ eksctl delete cluster -f cluster.yaml 
+		$ eksctl delete cluster -f cluster.yaml
+		* Also remove the firt cluster from the console
 	12. Navigate and get familiar with the AWS console and CLI, try out commands.
 
 7. IaC practice
@@ -313,4 +315,24 @@
 	13. SSH to ec2_instance:
 		$ ssh -i ~/.ssh/id_rsa ubuntu@<Public IP>
 	14. Destroy the env:
-		$ terraform destroy	
+		$ terraform destroy
+
+8. CONFIGURATION MANAGEMENT practice
+	1. Install Ansible on your VM
+		$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+		$ python3 get-pip.py --user
+		$ python3 -m pip -V
+	2. Install ansible using pip
+		$ python3 -m pip install --user ansible
+		$ ansible --version
+		$ python3 -m pip show ansible
+	3. Go to learning_purposes/ansible
+		$ cd learning_purposes/ansible
+	4. Using your favorite editor, modify inventory file, adding the IP of an AWS ec2 instance with port 80 open, to the websserver hosts list
+		$ vi inventory
+	5. Execute playbook.yml
+		$ ansible-playbook playbook.yml -i inventory --key-file "~/mykey.pem"
+	6. Verify Nginx running:
+		http://MYIPADDRESS.com
+
+9. CI/CD Practice, write some code!
